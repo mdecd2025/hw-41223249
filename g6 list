@@ -1,0 +1,33 @@
+from browser import html, document, ajax
+
+# 設定遠端學員資料的 URL
+url = "https://mde.tw/list/2b.txt"
+
+# 只保留這些學號的連結
+allowed_ids = {"41223224", "41223222", "41223223", "41223249", "41223232", "41223229"}
+
+def on_complete(req):
+    """ 當請求完成時的處理函式 """
+    if req.status == 200:
+        text = req.text
+        data = text.splitlines()  # 轉換成數列
+        all_stud = data[1:]  # 移除標題列
+
+        # 顯示學員總數
+        brython_div1 = document["brython_div1"]
+        brython_div1.text = f"總共有 {len(allowed_ids)} 名學員"
+        
+        # 加入學員專屬超連結
+        brython_div1 <= html.BR()
+        for student in all_stud:
+            parts = student.split("\t")  # 使用 Tab 分隔學號與 GitHub 帳號
+            if len(parts) >= 2:
+                stud_id = parts[0]
+                github_user = parts[1]
+                if stud_id in allowed_ids:
+                    hw_link = f"https://mdecd2025.github.io/hw-{github_user}"
+                    brython_div1 <= html.A(f"hw-{github_user} ({stud_id})", href=hw_link)
+                    brython_div1 <= html.BR()
+
+# 發送 AJAX 請求
+ajax.get(url, oncomplete=on_complete)
